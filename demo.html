@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+  <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      // 设置浏览器不记录上次滚动条的位置--刷新重置滚动条
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      objScrollMonitor({
+        el:".box",
+        topBottomEnter: () => {
+          console.log("对象上边缘从屏幕下边缘进入事件", "*******");
+        },
+        topBottomDepart: () => {
+          console.log("对象上边缘从屏幕下边缘离开事件", "@@@@@@@");
+        },
+        bottomBottomEnter: () => {
+          console.log("对象下边缘从屏幕下边缘进入事件", "++++++");
+        },
+        bottomBottomDepart: () => {
+          console.log("对象下边缘从屏幕下边缘离开事件", "------");
+        },
+        topTopEnter: () => {
+          console.log("对象上边缘从屏幕上边缘进入事件", "$$$$$$$");
+        },
+        topTopDepart: () => {
+          console.log("对象上边缘从屏幕上边缘离开事件", "#######");
+        },
+        bottomTopEnter: () => {
+          console.log("对象下边缘从屏幕上边缘进入事件", "%%%%%%%%%");
+        },
+        bottomTopDepart: () => {
+          console.log("对象下边缘从屏幕上边缘离开事件", "^^^^^^^^^");
+        },
+        bottomCompletionRate: (val) => {
+          // 对象上边缘进入滚动完成百分比
+          console.log(val, "对象上边缘进入滚动完成百分比");
+        },
+        topCompletionRate: (val) => {
+          // 对象上边缘滚入屏幕上边缘触发回调完成百分比
+          console.log(val, "对象上边缘滚入屏幕上边缘触发回调完成百分比");
+        }
+      })
+      function objScrollMonitor(jsonObj) {
+        let $obj = $(jsonObj.el); // 监测对象
+        let objName = jsonObj.el.slice(1, jsonObj.el.length); // 监测对象名称
+        let winHeight = $(window).height(); // 屏幕高度
+        let objHeight = $obj.height(); // 对象高度
+        let objTop = $obj.offset().top; // 相对于窗口的高度
+        $(window).bind("scroll", function() {
+          let scrollHeight = $(window).scrollTop(); // 滚动条高度
+          let direction = true; // 滚动方向
+          try {
+            if(eval(`oldScrollHeight${objName} < scrollHeight` )){
+              // console.log("向下")
+              direction = true;
+            }else{
+              // console.log("向上")
+              direction = false;
+            }
+            eval(`oldScrollHeight${objName} = scrollHeight`);
+          } catch(e) {
+            // 初始化当前状态
+            eval(`window.oldScrollHeight${objName} = scrollHeight;`); // 上一次滚动条的位置
+            eval(`window.topBottomStatus${objName} = false;`); // 对象上边缘进入窗口下边缘状态
+            eval(`window.bottomBottomStatus${objName} = false;`); // 对象下边缘进入窗口下边缘状态
+            eval(`window.topTopStatus${objName} = false;`); // 对象上边缘进入窗口上边缘状态
+            eval(`window.bottomTopStatus${objName} = false;`); // 对象下边缘进入窗口上边缘状态
+          }
+
+          // 对象上边缘--窗口下缘
+          if (!eval(`topBottomStatus${objName}`) && (scrollHeight + winHeight >= objTop) && direction === true) {
+            // 对象上边缘从屏幕下边缘进入事件
+            if(typeof jsonObj.topBottomEnter == "function"){
+              jsonObj.topBottomEnter();
+            }
+            eval(`topBottomStatus${objName} = true`);
+          }else if (eval(`topBottomStatus${objName}`) && (scrollHeight + winHeight <= objTop) && direction === false) {
+            // 对象上边缘从屏幕下边缘离开事件
+            if(typeof jsonObj.topBottomDepart == "function"){
+              jsonObj.topBottomDepart();
+            }
+            eval(`topBottomStatus${objName} = false`)
+          }
+
+          // 对象下边缘--窗口下缘
+          if (!eval(`bottomBottomStatus${objName}`) && (scrollHeight + winHeight >= objTop + objHeight) && direction === true) {
+            // 对象下边缘从屏幕下边缘进入事件
+            if(typeof jsonObj.bottomBottomEnter == "function"){
+              jsonObj.bottomBottomEnter();
+            }
+            eval(`bottomBottomStatus${objName} = true`);
+          } else if(eval(`bottomBottomStatus${objName}`) && (scrollHeight + winHeight <= objTop + objHeight) && direction === false) {
+            // 对象下边缘从屏幕下边缘离开事件
+            if(typeof jsonObj.bottomBottomDepart == "function"){
+              jsonObj.bottomBottomDepart();
+            }
+            eval(`bottomBottomStatus${objName} = false`);
+          }
+
+          // 对象上边缘--窗口上缘
+          if(!eval(`topTopStatus${objName}`) && (scrollHeight >= objTop) && direction === true) {
+            // 对象上边缘从屏幕上边缘进入事件
+            if(typeof jsonObj.topTopEnter == "function"){
+              jsonObj.topTopEnter();
+            }
+            eval(`topTopStatus${objName} = true`);
+          }else if (eval(`topTopStatus${objName}`) && (scrollHeight <= objTop) && direction === false) {
+            // 对象上边缘从屏幕上边缘离开事件
+            if(typeof jsonObj.topTopDepart == "function"){
+              jsonObj.topTopDepart();
+            }
+            eval(`topTopStatus${objName} = false`);
+          }
+
+          // 对象下边缘--窗口上缘
+          if (!eval(`bottomTopStatus${objName}`) && (scrollHeight >= objTop + objHeight) && direction === true){
+            // 对象下边缘从屏幕上边缘进入事件
+            if(typeof jsonObj.bottomTopEnter == "function"){
+              jsonObj.bottomTopEnter();
+            }
+            eval(`bottomTopStatus${objName} = true`);
+          }else if (eval(`bottomTopStatus${objName}`) && (scrollHeight <= objTop + objHeight) && direction === false){
+            // 对象下边缘从屏幕上边缘离开事件
+            if(typeof jsonObj.bottomTopDepart == "function"){
+              jsonObj.bottomTopDepart();
+            }
+            eval(`bottomTopStatus${objName} = false`);
+          }
+
+          // 从屏幕底部算起滚动完成百分比
+          if((scrollHeight + winHeight >= objTop) && (scrollHeight <= objTop + objHeight)){
+            // 对象从底部进入滚动完成百分比
+            if(typeof jsonObj.bottomCompletionRate == "function"){
+              jsonObj.bottomCompletionRate((scrollHeight + winHeight - objTop) / (objHeight + winHeight));
+            }
+          }
+
+          // 从屏幕顶部算起滚动完成百分比
+          if ((scrollHeight >= objTop) && (scrollHeight <=  objTop + objHeight)) {
+            // 对象上边缘滚入屏幕上边缘触发回调完成百分比
+            if(typeof jsonObj.topCompletionRate == "function"){
+              jsonObj.topCompletionRate((scrollHeight - objTop) / objHeight);
+            }
+          }
+        })
+      }
+    })
+  </script>
+  <p><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></p>
+  <div class="box"></div>
+  <p><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/></p>
+  <style type="">
+    .box{
+      width: 100%;
+      height: 150vh;
+      background-color: aqua;
+    }
+  </style>
+</body>
+
+</html>
