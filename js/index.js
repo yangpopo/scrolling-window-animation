@@ -254,7 +254,7 @@ $(document).ready(function(){
       }
       // 参数
       if (val > animationTime[0][1] && val < animationTime[0][2]) {
-        let animationProgress = (val - animationTime[0][1]) / 0.03;
+        let animationProgress = (val - animationTime[0][1]) / (animationTime[0][2] - animationTime[0][1]);
         $parameterBox.find(".value").css({"opacity": animationProgress});
       } else if (val > animationTime[0][2]) {
         $parameterBox.find(".value").css({"opacity": 1});
@@ -310,7 +310,7 @@ $(document).ready(function(){
           $slide02Box.find(".slide-02").css({"opacity": 1 - animationProgress / 0.2});
           $deployBok.css({"opacity": animationProgress / 0.2});
         } else if (animationProgress > 0.2) {
-          $slide02Box.find(".slide-02").css({"opacity": 0 ,"display": "none"});
+          $slide02Box.find(".slide-02").css({"opacity": 0, "display": "none"});
           $deployBok.css({"opacity": 1});
         }
 
@@ -419,11 +419,10 @@ $(document).ready(function(){
       }
 
       // 图标介绍
-      if (val >= 0.4 && val < 0.55) {
-        console.log(val)
-        let animationProgress = (val - 0.4) / 0.15;
+      if (val >= 0.3 && val < 0.45) {
+        let animationProgress = (val - 0.3) / 0.15;
         $iconBox06.css({"bottom":`${ -160 + 160 * animationProgress}px`});
-      } else if (val > 0.6) {
+      } else if (val > 0.45) {
         $iconBox06.css({"bottom":"0px"});
       }
     }
